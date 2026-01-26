@@ -2,27 +2,34 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/Input";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+/* ---------------- DB-ALIGNED FORM ----------------
+DB columns:
+id, question_text, option_a, option_b, option_c, option_d,
+correct_option, section_type, created_at
+-------------------------------------------------- */
 const EMPTY_FORM = {
   question_text: "",
-  section_type: "MCQ",
+  section_type: "VERBAL", // VERBAL | QUANT | AWA
   options: ["", "", "", ""],
   correct_option: "",
-  points: 1, // ✅ default marks
 };
 
 export default function Questionform({ initialData, onSubmit }) {
   const [form, setForm] = useState(EMPTY_FORM);
 
-  /* ---------- Load edit data ---------- */
+  /* -------- LOAD EDIT DATA -------- */
   useEffect(() => {
-    if (!initialData) return;
+    if (!initialData) {
+      setForm(EMPTY_FORM);
+      return;
+    }
 
     setForm({
       question_text: initialData.question_text ?? "",
-      section_type: initialData.section_type ?? "MCQ",
+      section_type: initialData.section_type ?? "VERBAL",
       options: [
         initialData.option_a ?? "",
         initialData.option_b ?? "",
@@ -30,126 +37,127 @@ export default function Questionform({ initialData, onSubmit }) {
         initialData.option_d ?? "",
       ],
       correct_option: initialData.correct_option ?? "",
-      points: initialData.points ?? 1, // ✅ load marks
     });
   }, [initialData]);
 
-  /* ---------- Handle type change ---------- */
-  useEffect(() => {
-    if (form.section_type === "True/False") {
-      setForm((p) => ({
-        ...p,
-        options: ["True", "False", "", ""],
-        correct_option: "",
-      }));
-    }
-  }, [form.section_type]);
-
-  const updateOption = (i, value) => {
+  /* -------- OPTION HANDLER -------- */
+  const updateOption = (index, value) => {
     const updated = [...form.options];
-    updated[i] = value;
+    updated[index] = value;
     setForm({ ...form, options: updated });
   };
 
+  /* -------- SUBMIT -------- */
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!form.question_text.trim()) {
-      alert("Question is required");
+      alert("Question text is required");
       return;
     }
 
-    if (!form.correct_option) {
-      alert("Select correct answer");
+    if (form.section_type !== "AWA" && !form.correct_option) {
+      alert("Correct option is required");
       return;
     }
 
     const payload = {
       question_text: form.question_text.trim(),
       section_type: form.section_type,
+
       option_a: form.options[0] || null,
       option_b: form.options[1] || null,
       option_c: form.options[2] || null,
       option_d: form.options[3] || null,
-      correct_option: form.correct_option,
-      points: Number(form.points), // ✅ save marks
+
+      correct_option:
+        form.section_type === "AWA" ? null : form.correct_option,
     };
 
     onSubmit(payload);
   };
 
+  /* -------- UI -------- */
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-      {/* Question Type */}
-      <select
-        className="input"
-        value={form.section_type}
-        onChange={(e) =>
-          setForm({ ...form, section_type: e.target.value })
-        }
-      >
-        <option value="MCQ">MCQ</option>
-        <option value="True/False">True / False</option>
-      </select>
 
-      {/* Question */}
-      <Textarea
-        placeholder="Enter question"
-        value={form.question_text}
-        onChange={(e) =>
-          setForm({ ...form, question_text: e.target.value })
-        }
-        required
-      />
-
-      {/* Options */}
-      {form.options.map((opt, i) =>
-        form.section_type === "MCQ" || i < 2 ? (
-          <Input
-            key={i}
-            placeholder={`Option ${String.fromCharCode(65 + i)}`}
-            value={opt}
-            onChange={(e) => updateOption(i, e.target.value)}
-          />
-        ) : null
-      )}
-
-      {/* Correct Answer */}
-      <select
-        className="input"
-        value={form.correct_option}
-        onChange={(e) =>
-          setForm({ ...form, correct_option: e.target.value })
-        }
-      >
-        <option value="">Select correct answer</option>
-        {form.options.map(
-          (opt, i) =>
-            opt && (
-              <option key={i} value={opt}>
-                {opt}
-              </option>
-            )
-        )}
-      </select>
-
-      {/* ✅ MARKS INPUT */}
+      {/* SECTION TYPE */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Marks
+          Section
         </label>
-        <Input
-          type="number"
-          min={1}
-          className="w-32"
-          value={form.points}
+        <select
+          className="input"
+          value={form.section_type}
           onChange={(e) =>
-            setForm({ ...form, points: e.target.value })
+            setForm({ ...form, section_type: e.target.value })
           }
+        >
+          <option value="VERBAL">Verbal Reasoning</option>
+          <option value="QUANT">Quantitative Reasoning</option>
+          <option value="AWA">Analytical Writing (AWA)</option>
+        </select>
+      </div>
+
+      {/* QUESTION TEXT */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Question
+        </label>
+        <Textarea
+          placeholder="Enter question text"
+          value={form.question_text}
+          onChange={(e) =>
+            setForm({ ...form, question_text: e.target.value })
+          }
+          required
         />
       </div>
 
-      <Button type="submit">Save Question</Button>
+      {/* OPTIONS (NOT FOR AWA) */}
+      {form.section_type !== "AWA" && (
+        <>
+          <div className="grid grid-cols-1 gap-3">
+            {form.options.map((opt, i) => (
+              <Input
+                key={i}
+                placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                value={opt}
+                onChange={(e) =>
+                  updateOption(i, e.target.value)
+                }
+              />
+            ))}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Correct Answer
+            </label>
+            <select
+              className="input"
+              value={form.correct_option}
+              onChange={(e) =>
+                setForm({ ...form, correct_option: e.target.value })
+              }
+            >
+              <option value="">Select correct option</option>
+              {form.options.map(
+                (opt, i) =>
+                  opt && (
+                    <option key={i} value={opt}>
+                      {opt}
+                    </option>
+                  )
+              )}
+            </select>
+          </div>
+        </>
+      )}
+
+      <Button type="submit">
+        Save Question
+      </Button>
     </form>
   );
 }
