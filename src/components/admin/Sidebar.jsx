@@ -45,8 +45,8 @@ export default function Sidebar() {
     {
       name: "Results",
       icon: CheckSquare,
-      href: "/admin/results",
-      match: "/admin/results",
+      href: "/admin/result",
+      match: "/admin/result",
     },
     {
       name: "Students",
@@ -61,28 +61,10 @@ export default function Sidebar() {
       match: "/admin/categories",
     },
     {
-      name: "Analytics",
-      icon: PieChart,
-      href: "/admin/analytics",
-      match: "/admin/analytics",
-    },
-    {
       name: "Test Attempts",
       icon: ListChecks,
       href: "/admin/attempts",
       match: "/admin/attempts",
-    },
-    {
-      name: "Settings",
-      icon: Settings,
-      href: "/admin/settings",
-      match: "/admin/settings",
-    },
-    {
-      name: "Logs",
-      icon: ScrollText,
-      href: "/admin/logs",
-      match: "/admin/logs",
     },
   ];
 
