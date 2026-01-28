@@ -11,21 +11,36 @@ export function parseQuestionsExcel(file) {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
+        if (!rows.length) {
+          throw new Error("Excel file is empty");
+        }
+
         const parsed = rows.map((row, i) => {
-          if (!row.question_text || !row.section_type) {
-            throw new Error(`Invalid row at line ${i + 2}`);
+          const line = i + 2;
+
+          if (!row.question_text) {
+            throw new Error(`Row ${line}: question_text is required`);
+          }
+
+          const section = String(row.section_type || "VERBAL")
+            .trim()
+            .toUpperCase();
+
+          if (!["VERBAL", "QUANT", "AWA"].includes(section)) {
+            throw new Error(`Row ${line}: invalid section_type`);
           }
 
           return {
-            id: crypto.randomUUID(),
-            question_text: row.question_text.trim(),
-            section_type: row.section_type.toUpperCase(),
+            question_text: String(row.question_text).trim(),
+            section_type: section,
+
             option_a: row.option_a || null,
             option_b: row.option_b || null,
             option_c: row.option_c || null,
             option_d: row.option_d || null,
-            correct_option: row.correct_option || null,
-            created_at: new Date().toISOString(),
+
+            correct_option:
+              section === "AWA" ? null : row.correct_option || null,
           };
         });
 

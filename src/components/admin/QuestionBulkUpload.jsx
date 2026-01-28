@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Upload,
+  FileSpreadsheet,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import { parseQuestionsExcel } from "@/utils/parseQuestionsExcel";
-// import { supabase } from "@/lib/supabaseClient";
 
 export default function QuestionBulkUpload({ onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -19,13 +23,24 @@ export default function QuestionBulkUpload({ onSuccess }) {
     setCount(0);
 
     try {
+      // 1️⃣ Parse Excel / CSV on client
       const rows = await parseQuestionsExcel(file);
 
-      const { error } = await supabase
-        .from("questions")
-        .insert(rows);
+      if (!rows.length) {
+        throw new Error("No valid questions found");
+      }
 
-      if (error) throw error;
+      // 2️⃣ Send to secure backend API
+      const res = await fetch("/api/questions/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questions: rows }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Bulk upload failed");
+      }
 
       setCount(rows.length);
       onSuccess?.();
@@ -106,8 +121,8 @@ export default function QuestionBulkUpload({ onSuccess }) {
       <div className="text-xs text-gray-500 border-t pt-3">
         <p className="font-medium mb-1">Required Excel columns:</p>
         <code className="block bg-gray-50 p-2 rounded text-gray-700">
-          section_type, question_text, option_a, option_b, option_c,
-          option_d, correct_option
+           question_text, option_a, option_b, option_c,
+          option_d,section_type, correct_option
         </code>
       </div>
     </div>
