@@ -61,8 +61,8 @@ export default function Sidebar() {
     {
       name: "Test Attempts",
       icon: ListChecks,
-      href: "/admin/attempts",
-      match: "/admin/attempts",
+      href: "/admin/testAttempts",
+      match: "/admin/testAttempts",
     },
   ];
 
