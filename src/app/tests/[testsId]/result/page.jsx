@@ -10,15 +10,51 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useStudentTestStore } from "@/store/studentTestStore";
+import { upsertTestResult } from "@/actions/student/test.actions";
+import { useEffect, useRef } from "react";
+
 export default function TestResultPage() {
+  const hasSavedRef = useRef(false);
   const router = useRouter();
-  const { testsId } = useParams();
+  const attemptNo = useStudentTestStore((s) => s.attemptNo);
   const { testId, student, questions, answers, resetTest } = useStudentTestStore();
 
   let score = 0;
+
   questions.forEach((q) => {
-    if (answers[q.id] === q.correct_option) score++;
+    const selectedKey = answers[q.id]; // "A" | "B" | "C" | "D"
+
+    if (!selectedKey) return;
+
+    const selectedText =
+      selectedKey === "A" ? q.option_a :
+        selectedKey === "B" ? q.option_b :
+          selectedKey === "C" ? q.option_c :
+            selectedKey === "D" ? q.option_d :
+              null;
+
+    if (selectedText === q.correct_option) {
+      score++;
+    }
   });
+
+
+  useEffect(() => {
+    if (hasSavedRef.current) return;
+    if (!student.name || !student.email || !testId) return;
+
+    hasSavedRef.current = true;
+
+    upsertTestResult({
+      student_name: student.name,
+      email: student.email,
+      score,
+      test_id: testId,
+      attempt_no: attemptNo,
+    });
+  }, [student.name, student.email, testId, score, attemptNo]);
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-100 to-indigo-100 p-6">
@@ -58,9 +94,20 @@ export default function TestResultPage() {
                     Q{idx + 1}. {q.question_text}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Your Answer: {answers[q.id] || "Not Answered"} | Correct:{" "}
-                    {q.correct_option}
+                    Your Answer: {
+                      answers[q.id]
+                        ? (
+                          answers[q.id] === "A" ? q.option_a :
+                            answers[q.id] === "B" ? q.option_b :
+                              answers[q.id] === "C" ? q.option_c :
+                                answers[q.id] === "D" ? q.option_d :
+                                  "Not Answered"
+                        )
+                        : "Not Answered"
+                    }
+                    {" "} | Correct: {q.correct_option}
                   </p>
+
                 </div>
               </div>
             );
@@ -72,10 +119,10 @@ export default function TestResultPage() {
               onClick={() => {
                 resetTest();
                 // router.push(`/tests/${testId}/start`);
-                  router.push('/');
+                router.push('/');
               }}
             >
-              Retake Test
+              Go to Home
             </Button>
           </div>
         </CardContent>

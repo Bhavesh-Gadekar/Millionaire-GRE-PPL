@@ -11,26 +11,42 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useStudentTestStore } from "@/store/studentTestStore";
+import { getAttemptInfo  } from "@/actions/student/test.actions";
+
 export default function StartTestPage() {
   const { testsId } = useParams();
   const router = useRouter();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-
+  const setAttemptNo = useStudentTestStore((s) => s.setAttemptNo);
   const setStudent = useStudentTestStore((s) => s.setStudent);
 const setTest = useStudentTestStore((s) => s.setTest);
 
 
-  const handleStartTest = () => {
-    if (!name || !email) {
-      alert("Please enter your name and email");
-      return;
-    }
-    setStudent(name, email);
-    setTest(testsId);
-    router.push(`/tests/${testsId}/attempt`);
-  };
+  const handleStartTest = async () => {
+  if (!name || !email) {
+    alert("Please enter your name and email");
+    return;
+  }
+
+  const res = await getAttemptInfo(testsId, email);
+  if (!res.success) {
+    alert("Something went wrong. Please try again.");
+    router.push(`/`);
+    return;
+  }
+  if (res.attemptNo >= 2) {
+  alert("Free trial ended. You have used all your attempts.");
+  router.push(`/`);
+  return;
+}
+  // allowed
+  setStudent(name, email);
+  setTest(testsId);
+  setAttemptNo(res.attemptNo + 1);
+  router.push(`/tests/${testsId}/attempt`);
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-blue-100 to-indigo-100 px-4">
