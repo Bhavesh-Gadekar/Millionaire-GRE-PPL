@@ -1,17 +1,45 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useTestsStore } from "@/store/useTestsStore";
+import { getAllTests ,deleteTestById} from "@/actions/admin_B/tests.actions";
 
 export default function TestsPage() {
   const router = useRouter();
-  const { tests, deleteTest } = useTestsStore();
+   const { tests, addTest, deleteTest } = useTestsStore();
 
-  const handleDelete = (id) => {
+ useEffect(() => {
+  const fetchTests = async () => {
+    const result = await getAllTests();
+    if (result.success && result.data) {
+      useTestsStore.getState().setTests(
+        result.data.map((t) => ({
+          test_id: t.id,
+          test_name: t.title,
+          is_published: t.is_published,
+        }))
+      );
+    }
+  };
+
+  fetchTests();
+}, []);
+
+
+  const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this test?")) return;
-    deleteTest(id);
+
+    const res = await deleteTestById(id); // call Supabase directly
+    if (res.success) {
+      alert("Test deleted successfully");
+      deleteTest(id);
+      // router.refresh();
+    } else {
+      alert(res.error || "Failed to delete test");
+    }
   };
 
   return (
@@ -41,31 +69,31 @@ export default function TestsPage() {
             {tests.length > 0 ? (
               tests.map((test) => (
                 <tr
-                  key={test.id}
+                  key={test.test_id || test.test_name}
                   className="border-t hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-6 py-4 text-sm text-center">{test.title}</td>
+                  <td className="px-6 py-4 text-sm text-center">{test.test_name}</td>
                   <td className="px-6 py-4 text-sm text-center">
                     <span
                       className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        test.published
+                        test.is_published
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {test.published ? "Published" : "Unpublished"}
+                      {test.is_published ? "Published" : "Unpublished"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm flex gap-2 justify-end">
                     <button
-                      onClick={() => router.push(`/admin/tests/edit/${test.id}`)}
+                      onClick={() => router.push(`/admin/tests/edit/${test.test_id}`)}
                       className="icon-btn text-blue-600"
                     >
                       <Pencil size={18} />
                     </button>
                     <button
                       className="icon-btn text-red-600"
-                      onClick={() => handleDelete(test.id)}
+                      onClick={() => handleDelete(test.test_id)}
                     >
                       <Trash2 size={18} />
                     </button>

@@ -1,10 +1,17 @@
 "use server"; // makes this a server action
-import { supabaseAdmin } from "@/lib/supabase/server";
+
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { v4 as uuid } from "uuid";
+
+// Helper to get server client
+async function getSupabase() {
+  return await createSupabaseServerClient();
+}
 
 // Fetch all questions
 export async function getQuestions() {
-  const { data, error } = await supabaseAdmin
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
     .from("questions")
     .select("*")
     .order("created_at", { ascending: false });
@@ -31,7 +38,8 @@ export async function createQuestion(payload) {
     created_at: new Date().toISOString(),
   };
 
-  const { data, error } = await supabaseAdmin
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
     .from("questions")
     .insert(newQuestion)
     .select()
@@ -59,7 +67,8 @@ export async function createBulkQuestions(questionsArray) {
     created_at: new Date().toISOString(),
   }));
 
-  const { data, error } = await supabaseAdmin
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
     .from("questions")
     .insert(questionsToInsert)
     .select();
@@ -72,7 +81,8 @@ export async function createBulkQuestions(questionsArray) {
 export async function updateQuestion(payload) {
   if (!payload.id) throw new Error("Question ID is required");
 
-  const { data, error } = await supabaseAdmin
+  const supabase = await getSupabase();
+  const { data, error } = await supabase
     .from("questions")
     .update({
       question_text: payload.question_text,
@@ -90,3 +100,17 @@ export async function updateQuestion(payload) {
   if (error) throw error;
   return data; // return updated row
 }
+// Delete a question by ID
+export async function deleteQuestionById(id) {
+  if (!id) throw new Error("Question ID is required");
+
+  const supabase = await getSupabase();
+  const { error } = await supabase
+    .from("questions")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return { success: true };
+}
+

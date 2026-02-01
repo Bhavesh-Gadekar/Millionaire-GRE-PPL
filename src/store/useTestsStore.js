@@ -1,20 +1,23 @@
 import { create } from "zustand";
-// for admin tests :-
+
 export const useTestsStore = create((set, get) => ({
   tests: [],
 
-  addTest: (test) =>
-    set((state) => ({ tests: [...state.tests, test] })),
+  setTests: (tests) => set({ tests }),   // <-- overwrite all tests
+
+  addTest: (test) => set((state) => ({ tests: [...state.tests, test] })),
 
   updateTest: (updated) =>
     set((state) => ({
-      tests: state.tests.map((t) => (t.id === updated.id ? updated : t)),
+      tests: state.tests.map((t) =>
+        t.test_id === updated.test_id ? updated : t
+      ),
     })),
 
-  deleteTest: (id) =>
+  deleteTest: (test_id) =>
     set((state) => ({
-      tests: state.tests.filter((t) => t.id !== id),
+      tests: state.tests.filter((t) => t.test_id !== test_id),
     })),
 
-  getTestById: (id) => get().tests.find((t) => t.id === id),
+  getTestById: (test_id) => get().tests.find((t) => t.test_id === test_id),
 }));

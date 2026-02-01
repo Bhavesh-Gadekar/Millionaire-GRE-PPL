@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useQuestionsStore } from "@/store/questionsStore";
 import QuestionBulkUpload from "@/components/admin/QuestionBulkUpload";
-import { getQuestions } from "@/actions/admin_B/questions"; // ✅ server action
+import { getQuestions,deleteQuestionById  } from "@/actions/admin_B/questions"; // ✅ server action
 
 export default function QuestionsPage() {
   const router = useRouter();
@@ -23,6 +23,19 @@ export default function QuestionsPage() {
       }
     });
   }, [setQuestions]);
+
+  const handleDelete = (id) => {
+    if (!confirm("Are you sure you want to delete this question?")) return;
+
+    startTransition(async () => {
+      try {
+        await deleteQuestionById(id);
+        deleteQuestion(id);
+      } catch (err) {
+        console.error("Failed to delete question:", err);
+      }
+    });
+  };
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -85,7 +98,7 @@ export default function QuestionsPage() {
                       <Pencil size={16} />
                     </button>
                     <button
-                      onClick={() => deleteQuestion(q.id)}
+                      onClick={() => handleDelete(q.id)}
                       className="icon-btn text-red-600"
                     >
                       <Trash2 size={16} />

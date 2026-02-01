@@ -2,32 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { supabase } from "@/lib/supabaseClient"; // 🔐 uncomment when using Supabase
+import { handleAdminLogin } from "@/actions/admin_B/auth.actions";
 
 export default function AdminLogin() {
   const router = useRouter();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
+  const handleLoginClick = async () => {
     setLoading(true);
     setError("");
-    //SUPABASE LOGIN (FUTURE)
-    /*
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
 
-    if (error) {
-      setError(error.message);
+    const { success, message } = await handleAdminLogin(email, password);
+
+    if (!success) {
+      setError(message);
       setLoading(false);
       return;
     }
-    */
+
     router.push("/admin/dashboard");
     setLoading(false);
   };
@@ -46,31 +41,23 @@ export default function AdminLogin() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-slate-300 text-slate-800
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 rounded-lg border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg border border-slate-300 text-slate-800
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 rounded-lg border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 mt-3 text-center">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-sm text-red-500 mt-3 text-center">{error}</p>}
 
           <button
-            onClick={handleLogin}
+            onClick={handleLoginClick}
             disabled={loading}
-            className="w-full mt-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium
-                       hover:bg-indigo-500 transition-colors disabled:opacity-60"
+            className="w-full mt-6 py-2.5 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-500 transition-colors disabled:opacity-60"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
@@ -78,13 +65,8 @@ export default function AdminLogin() {
       </main>
 
       <footer className="py-4 text-center text-sm text-slate-500">
-        ©{" "}
-        <span suppressHydrationWarning>
-          {new Date().getFullYear()}
-        </span>{" "}
-        Millionaire GRE • All rights reserved
+        © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Millionaire GRE • All rights reserved
       </footer>
-
     </div>
   );
 }

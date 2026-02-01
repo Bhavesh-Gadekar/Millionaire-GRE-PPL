@@ -1,28 +1,10 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-
-/**
- * TABLES USED:
- * tests (test_id, test_name, is_published, created_at)
- * test_questions (test_question_id, test_id, question_id)
- * questions (question_id, question_text, option_a, option_b, option_c, option_d, correct_option, section_type, created_at)
- */
-
-/**
- * Create test → createTest(testData)
- *
- * Expected testData:
- * {
- *   test_name: "Mock Test 1",
- *   is_published: false, // optional
- *   question_ids: ["uuid1", "uuid2"] // optional (existing questions)
- * }
- */
 export async function createTest(testData) {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     const { question_ids = [], ...testInfo } = testData;
 
@@ -31,7 +13,7 @@ export async function createTest(testData) {
       .from("tests")
       .insert([
         {
-          test_name: testInfo.test_name,
+          title: testInfo.test_name,
           is_published: testInfo.is_published ?? false,
         },
       ])
@@ -43,7 +25,7 @@ export async function createTest(testData) {
     // 2) Link questions using test_questions table
     if (question_ids.length > 0) {
       const links = question_ids.map((qid) => ({
-        test_id: test.test_id,
+        test_id: test.id,
         question_id: qid,
       }));
 
@@ -70,7 +52,7 @@ export async function createTest(testData) {
  */
 export async function getAllTests() {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("tests")
@@ -93,15 +75,15 @@ export async function getAllTests() {
  * Get test by ID → getTestById(testId)
  * Returns test + linked questions
  */
-export async function getTestById(testId) {
+export async function gettTestById(testId) {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     // 1) Get test
     const { data: test, error: testError } = await supabase
       .from("tests")
       .select("*")
-      .eq("test_id", testId)
+      .eq("id", testId) // ✅ use 'id' instead of 'test_id'
       .single();
 
     if (testError) throw testError;
@@ -111,10 +93,10 @@ export async function getTestById(testId) {
       .from("test_questions")
       .select(
         `
-        test_question_id,
+        id,
         question_id,
         questions (
-          question_id,
+          id,
           question_text,
           option_a,
           option_b,
@@ -143,13 +125,14 @@ export async function getTestById(testId) {
       },
     };
   } catch (err) {
-    console.error("getTestById error:", err);
+    console.error("gettTestById error:", err);
     return {
       success: false,
       error: err?.message || "Failed to fetch test by id",
     };
   }
 }
+
 
 /**
  * Update test → updateTest(testId, testData)
@@ -163,7 +146,7 @@ export async function getTestById(testId) {
  */
 export async function updateTest(testId, testData) {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     const { question_ids, ...testInfo } = testData;
 
@@ -176,7 +159,7 @@ export async function updateTest(testId, testData) {
           is_published: testInfo.is_published,
         }),
       })
-      .eq("test_id", testId)
+      .eq("id", testId)
       .select("*")
       .single();
 
@@ -225,7 +208,7 @@ export async function updateTest(testId, testData) {
  */
 export async function publishTest(testId) {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("tests")
@@ -254,7 +237,7 @@ export async function publishTest(testId) {
  */
 export async function unpublishTest(testId) {
   try {
-    const supabase = await createClient();
+    const supabase = await createSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("tests")
@@ -274,6 +257,49 @@ export async function unpublishTest(testId) {
     return {
       success: false,
       error: err?.message || "Failed to unpublish test",
+    };
+  }
+}
+
+export async function deleteTestById(testId) {
+  try {
+    const supabase = await createSupabaseServerClient();
+
+    // 1) Delete linked test_questions
+    const { error: tqError } = await supabase
+      .from("test_questions")
+      .delete()
+      .eq("test_id", testId);
+
+    if (tqError) throw tqError;
+
+    // 2) Delete linked test_results
+    const { error: trError } = await supabase
+      .from("test_results")
+      .delete()
+      .eq("test_id", testId);
+
+    if (trError) throw trError;
+
+    // 3) Delete the test itself
+    const { data, error: testError } = await supabase
+      .from("tests")
+      .delete()
+      .eq("id", testId)
+      .select("*")
+      .single();
+
+    if (testError) throw testError;
+
+    // Revalidate paths
+    revalidatePath("/admin/tests");
+
+    return { success: true, data };
+  } catch (err) {
+    console.error("deleteTestById error:", err);
+    return {
+      success: false,
+      error: err?.message || "Failed to delete test",
     };
   }
 }

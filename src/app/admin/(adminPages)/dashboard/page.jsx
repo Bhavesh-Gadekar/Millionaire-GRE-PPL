@@ -1,14 +1,14 @@
 "use client"
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/client";
 
 export default function AdminDashboard() {
 
   const router = useRouter();
 
   const handleLogout = async () => {
-    // if using Supabase auth
-    // await supabase.auth.signOut();
-    router.push("/");
+    await supabase.auth.signOut();
+  router.push("/");
   };
 
   return (
