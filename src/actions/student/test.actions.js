@@ -108,3 +108,27 @@ export async function getPublishedTests() {
     return { success: false, error: err?.message || "Failed to fetch tests" };
   }
 }
+
+export async function registerTestAttempt({
+  student_name,
+  email,
+  test_id,
+  attempt_no,
+}) {
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("test_results")
+    .upsert(
+      {
+        student_name,
+        email,
+        test_id,
+        attempt_no,
+        score: null, // score comes later
+      },
+      { onConflict: "test_id,email" }
+    );
+
+  if (error) throw error;
+}
