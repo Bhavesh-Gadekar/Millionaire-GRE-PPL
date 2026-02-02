@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import Link from "next/link";
 import {
     BookOpen,
     Clock,
@@ -41,7 +42,7 @@ export default function GuidePage() {
                         <p className="text-slate-500 mt-3">The GRE General Test measures verbal reasoning, quantitative reasoning, critical thinking, and analytical writing skills.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {/* Verbal */}
                         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-lg transition-all group">
                             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -88,6 +89,22 @@ export default function GuidePage() {
                                 <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>Critique an Argument</li>
                             </ul>
                         </div>
+
+                        {/* Test Duration */}
+                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-300 hover:shadow-lg transition-all group">
+                            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Clock className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-3">Test Duration</h3>
+                            <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                                The GRE General Test takes approximately <strong>1 hour 58 minutes</strong> to complete, offering a streamlined testing experience.
+                            </p>
+                            <ul className="space-y-2 text-sm text-slate-500">
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>20 mins per Writing Task</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>47 mins for Quant</li>
+                                <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-amber-400 rounded-full"></div>41 mins for Verbal</li>
+                            </ul>
+                        </div>
                     </div>
 
                     {/* SCORING STRIP */}
@@ -107,6 +124,44 @@ export default function GuidePage() {
                             <div className="text-center px-4">
                                 <p className="text-3xl font-black text-emerald-400">5yr</p>
                                 <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Validity</p>
+                            </div>
+                            <div className="text-center px-4 border-l border-white/10">
+                                <p className="text-3xl font-black text-amber-400">3h 45m</p>
+                                <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Duration</p>
+                            </div>
+                        </div>
+                    </div>
+                    {/* PREPARATION STRATEGY */}
+                    <div className="mt-16 bg-white rounded-3xl p-8 md:p-12 border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div className="text-center mb-10">
+                            <h3 className="text-2xl font-bold text-slate-900">Preparation Strategy</h3>
+                            <p className="text-slate-500 mt-2">Proven approaches to maximize your score in every section.</p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                                <h4 className="font-bold text-indigo-900 mb-2 flex items-center gap-2">
+                                    <Target className="w-4 h-4" /> Quant
+                                </h4>
+                                <p className="text-sm text-indigo-800/80">Master fundamentals, practice daily, and focus on speed + accuracy.</p>
+                            </div>
+                            <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                                    <BookOpen className="w-4 h-4" /> Verbal
+                                </h4>
+                                <p className="text-sm text-blue-800/80">Build strong vocabulary, read regularly, and analyze passages deeply.</p>
+                            </div>
+                            <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                                <h4 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                                    <PenTool className="w-4 h-4" /> Writing
+                                </h4>
+                                <p className="text-sm text-emerald-800/80">Practice essays with structure, clarity, and logical arguments.</p>
+                            </div>
+                            <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                <h4 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                    <Clock className="w-4 h-4" /> Mocks
+                                </h4>
+                                <p className="text-sm text-amber-800/80">Take full-length mock tests and analyze mistakes thoroughly.</p>
                             </div>
                         </div>
                     </div>
@@ -209,7 +264,24 @@ export default function GuidePage() {
                     </div>
                 </section>
 
-            </main>
+                {/* CTA SECTION */}
+                <section className="py-24 bg-slate-900 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-blue-600/10 blur-3xl rounded-full scale-150 -translate-x-1/2 translate-y-1/2"></div>
+                    <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Ace the GRE?</h2>
+                        <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">
+                            Join thousands of students who have achieved their dream scores. Start your preparation journey today.
+                        </p>
+                        <Link
+                            href="/#free-tests"
+                            className="inline-block bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-4 px-12 rounded-full shadow-lg hover:shadow-xl hover:shadow-amber-400/20 transition-all hover:-translate-y-1 transform"
+                        >
+                            Start Free GRE Practice
+                        </Link>
+                    </div>
+                </section>
+
+            </main >
             <Footer />
         </>
     );
