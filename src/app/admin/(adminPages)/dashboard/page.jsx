@@ -71,7 +71,7 @@ export default function AdminDashboard() {
 
         <button
           onClick={onLogout}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all shadow-sm"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 hover:cursor-pointer transition-all shadow-sm"
         >
           <LogOut className="w-3.5 h-3.5" />
           Logout
@@ -170,15 +170,15 @@ export default function AdminDashboard() {
               <div className="space-y-2">
                 <button
                   onClick={() => router.push('/admin/tests/create')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all group text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all group text-left hover:cursor-pointer"
                 >
                   <span className="text-xs font-semibold text-slate-700">Create New Test</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500" />
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-500" />
                 </button>
 
                 <button
                   onClick={() => router.push('/admin/questions/create')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all group text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all group text-left hover:cursor-pointer"
                 >
                   <span className="text-xs font-semibold text-slate-700">Add Question</span>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-500" />
@@ -186,10 +186,10 @@ export default function AdminDashboard() {
 
                 <button
                   onClick={() => router.push('/admin/students')}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 transition-all group text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all group text-left hover:cursor-pointer"
                 >
                   <span className="text-xs font-semibold text-slate-700">View Students</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-500" />
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-500" />
                 </button>
               </div>
 
