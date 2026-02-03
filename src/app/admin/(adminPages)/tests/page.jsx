@@ -57,7 +57,7 @@ export default function TestsPage() {
 
         <button
           onClick={() => router.push("/admin/tests/create")}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-bold text-xs border border-transparent"
+          className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-bold text-xs border border-transparent hover:cursor-pointer"
         >
           <Plus size={16} />
           Create Test
